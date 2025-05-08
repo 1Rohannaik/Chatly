@@ -1,0 +1,136 @@
+<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Dynamic Text Styling</title>
+    <script type="text/javascript">
+      function applyStyles() {
+        var para = document.getElementById("text");
+
+        var bgColor = document.getElementById("bgColor").value;
+        var fgColor = document.getElementById("fgColor").value;
+        var fontFamily = document.getElementById("fontFamily").value;
+        var fontSize = document.getElementById("fontSize").value;
+
+        para.style.backgroundColor = bgColor;
+        para.style.color = fgColor;
+        para.style.fontFamily = fontFamily;
+        para.style.fontSize = fontSize;
+      }
+    </script>
+  </head>
+  <body>
+    <h2>Change Text Style Dynamically</h2>
+
+    <p id="text">This is a sample paragraph. You can change its style using the form below.</p>
+
+    <form action="#" onsubmit="applyStyles(); return false;">
+      <label for="bgColor">Background Color:</label>
+      <input type="color" id="bgColor" /><br /><br />
+
+      <label for="fgColor">Text Color:</label>
+      <input type="color" id="fgColor" /><br /><br />
+
+      <label for="fontFamily">Font Family:</label>
+      <select id="fontFamily">
+        <option value="Arial">Arial</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+      </select><br /><br />
+
+      <label for="fontSize">Font Size:</label>
+      <select id="fontSize">
+        <option value="12px">12px</option>
+        <option value="16px" selected="selected">16px</option>
+        <option value="20px">20px</option>
+        <option value="24px">24px</option>
+      </select><br /><br />
+
+      <input type="submit" value="Apply Styles" />
+    </form>
+  </body>
+</html> -->
+
+<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Dynamic Image Stacking</title>
+    <style type="text/css">
+      #container {
+        position: relative;
+        width: 400px;
+        height: 300px;
+        border: 1px solid #000;
+      }
+      .stackedImage {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 200px;
+        height: 150px;
+        border: 2px solid #ccc;
+      }
+    </style>
+    <script type="text/javascript">
+      var currentZIndex = 1;
+
+      function stackImage(imageId) {
+        var img = document.getElementById(imageId);
+        currentZIndex += 1;
+        img.style.zIndex = currentZIndex;
+      }
+    </script>
+  </head>
+  <body>
+    <h2>Dynamic Image Stacking</h2>
+
+    <div id="container">
+      <img id="img1" class="stackedImage" src="https://via.placeholder.com/200x150/ff9999" alt="Image 1" onclick="stackImage('img1')" />
+      <img id="img2" class="stackedImage" src="https://via.placeholder.com/200x150/99ccff" alt="Image 2" onclick="stackImage('img2')" style="left: 50px; top: 50px;" />
+      <img id="img3" class="stackedImage" src="https://via.placeholder.com/200x150/99ff99" alt="Image 3" onclick="stackImage('img3')" style="left: 80px; top: 80px;" />
+    </div>
+
+    <p>Click on any image to bring it to the front (stack on top).</p>
+  </body>
+</html>
+ -->
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Image Switcher</title>
+    <script type="text/javascript">
+      function changeImage(imageNumber) {
+        var img = document.getElementById("mainImage");
+
+        if (imageNumber === 1) {
+          img.src =
+            "https://via.placeholder.com/300x200/ff9999/000000?text=Image+1";
+        } else if (imageNumber === 2) {
+          img.src =
+            "https://via.placeholder.com/300x200/99ccff/000000?text=Image+2";
+        } else if (imageNumber === 3) {
+          img.src =
+            "https://via.placeholder.com/300x200/99ff99/000000?text=Image+3";
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h2>Switch Images by Clicking a Button</h2>
+
+    <img
+      id="mainImage"
+      src="https://via.placeholder.com/300x200/ff9999/000000?text=Image+1"
+      alt="Switchable Image"
+    />
+
+    <br /><br />
+    <button onclick="changeImage(1)">1</button>
+    <button onclick="changeImage(2)">2</button>
+    <button onclick="changeImage(3)">3</button>
+  </body>
+</html>
