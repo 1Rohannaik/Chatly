@@ -9,7 +9,9 @@ export default {
   plugins: [daisyui],
   daisyui: {
     themes: [
-      "retro",
+      "dracula",
+      "cmyk",
+      "autumn",
       "night",
     ],
   },
