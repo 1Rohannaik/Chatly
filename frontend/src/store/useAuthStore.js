@@ -1,13 +1,12 @@
 import { create } from "zustand";
-import  axiosInstance  from "../lib/axios.js";
+import axiosInstance from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const BASE_URL =
   import.meta.env.MODE === "development"
-    ? "http://localhost:5173" // ✅ only for local dev
-    : "https://chatly-hfoo.onrender.com"; // ✅ live frontend URL
-
+    ? "http://localhost:3000" // Backend URL for local development
+    : "https://chatly-backend-so6r.onrender.com"; // Backend URL for production
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -92,14 +91,13 @@ export const useAuthStore = create((set, get) => ({
   // ✅ Connect Socket
   connectSocket: () => {
     const { authUser, socket } = get();
-    if (!authUser || socket?.connected) return;
+    if (!authUser?.id || socket?.connected) return;
 
     const newSocket = io(BASE_URL, {
-      query: {
-        userId: authUser.id,
-      },
+      query: { userId: authUser.id },
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      withCredentials: true, // Ensure cookies are sent along with the request
     });
 
     newSocket.on("connect", () => {

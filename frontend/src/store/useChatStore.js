@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
-import axiosInstance  from "../lib/axios";
+import axiosInstance from "../lib/axios";
 import { useAuthStore } from "./useAuthStore"; // Import your auth store
 
 export const useChatStore = create((set, get) => ({
@@ -15,30 +15,33 @@ export const useChatStore = create((set, get) => ({
     return useAuthStore.getState().authUser; // Access the authUser from the auth store
   },
 
+  // Get Users
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/message/users");
       set({ users: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to load users");
+      toast.error(error?.response?.data?.message || "Failed to load users");
     } finally {
       set({ isUsersLoading: false });
     }
   },
 
+  // Get Messages
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/message/${userId}`);
       set({ messages: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to load messages");
+      toast.error(error?.response?.data?.message || "Failed to load messages");
     } finally {
       set({ isMessagesLoading: false });
     }
   },
 
+  // Send Message
   sendMessage: async ({ text, image }) => {
     const { selectedUser, messages } = get();
     const authUser = get().authUser;
@@ -88,9 +91,9 @@ export const useChatStore = create((set, get) => ({
       return res.data;
     } catch (error) {
       // Handle error and display appropriate message
-      const errMsg = error.response?.data?.message || "Failed to send message";
+      const errMsg = error?.response?.data?.message || "Failed to send message";
       console.error("Send message error:", {
-        error: error.response?.data || error.message,
+        error: error?.response?.data || error.message,
         payload: { text, image },
       });
       toast.error(errMsg);
@@ -98,7 +101,9 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // Set selected user for chat
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 
+  // Reset chat state
   resetChatState: () => set({ messages: [] }),
 }));
