@@ -12,8 +12,8 @@ const cors = require("cors");
 app.use(
   cors({
     origin: [
-      "http://localhost:5173", // For local development
-      "https://chatly-hfoo.onrender.com", // ✅ Your hosted frontend
+      "http://localhost:5173", 
+      "https://chatly-hfoo.onrender.com", 
     ],
     credentials: true,
     optionsSuccessStatus: 200,
