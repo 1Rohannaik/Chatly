@@ -1,12 +1,7 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
-import { axiosInstance } from "../lib/axios";
+import axiosInstance  from "../lib/axios";
 import { useAuthStore } from "./useAuthStore"; // Import your auth store
-
-const BASE_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:5173" // Development URL
-    : "https://chatly-backend-so6r.onrender.com"; // Live backend URL
 
 export const useChatStore = create((set, get) => ({
   messages: [],
@@ -23,7 +18,7 @@ export const useChatStore = create((set, get) => ({
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
-      const res = await axiosInstance.get(`${BASE_URL}/message/users`);
+      const res = await axiosInstance.get("/message/users");
       set({ users: res.data });
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to load users");
@@ -35,7 +30,7 @@ export const useChatStore = create((set, get) => ({
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`${BASE_URL}/message/${userId}`);
+      const res = await axiosInstance.get(`/message/${userId}`);
       set({ messages: res.data });
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to load messages");
@@ -83,7 +78,7 @@ export const useChatStore = create((set, get) => ({
 
       // Send the request to the server
       const res = await axiosInstance.post(
-        `${BASE_URL}/message/send/${selectedUser.id}`,
+        `/message/send/${selectedUser.id}`,
         payload
       );
 
