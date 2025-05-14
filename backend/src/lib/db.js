@@ -11,11 +11,11 @@ const sequelize = new Sequelize(
     dialect: process.env.DB_DIALECT || "postgres",
     dialectOptions: {
       ssl: {
-        require: true, // Ensures SSL is used
-        rejectUnauthorized: false, // Allows self-signed certificates (for Render)
+        require: true, 
+        rejectUnauthorized: false, 
       },
     },
-    logging: false, // Optional: disables raw SQL logs
+    logging: false, 
   }
 );
 

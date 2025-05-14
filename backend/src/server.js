@@ -12,13 +12,14 @@ const cors = require("cors");
 app.use(
   cors({
     origin: [
-      "http://localhost:5173", 
-      "https://chatly-hfoo.onrender.com", 
+      "http://localhost:5173", // For local development
+      "https://chatly-hfoo.onrender.com", // ✅ Your hosted frontend
     ],
-    credentials: true, 
-    optionsSuccessStatus: 200, 
+    credentials: true,
+    optionsSuccessStatus: 200,
   })
 );
+
 
 app.use(express.json())
 app.use(cookieParser());
