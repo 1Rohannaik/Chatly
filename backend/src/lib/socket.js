@@ -7,8 +7,11 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
-    credentials: true, // Adjust as needed
+    origin: [
+      "http://localhost:5173", // Your local frontend URL
+      "https://chatly-hfoo.onrender.com", // Your deployed frontend URL
+    ],
+    credentials: true, // Allow cookies and credentials
   },
 });
 
@@ -27,6 +30,7 @@ io.on("connection", (socket) => {
     userSocketMap[userId] = socket.id;
   }
 
+  // Emit list of online users
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
