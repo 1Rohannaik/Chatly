@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://chatly-backend-tqn8.onrender.com/api/v1",
+  baseURL: "https://chatly-backend-8viu.onrender.com/api/v1",
   withCredentials: true,
 });
 
