@@ -5,17 +5,16 @@ const generateToken = (userId, res) => {
     expiresIn: "7d",
   });
 
-res.cookie("jwt", token, {
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  httpOnly: true,
-  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-  secure: process.env.NODE_ENV === "production",
-});
-
-
+  res.cookie("jwt", token, {
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    httpOnly: true,
+    sameSite: "None",   // Required for cross-site cookie in production
+    secure: true,       // Must be true in production (HTTPS)
+  });
 
   return token;
 };
 
 module.exports = { generateToken };
+
 
