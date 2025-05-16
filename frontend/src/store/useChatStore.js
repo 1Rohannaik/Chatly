@@ -43,63 +43,52 @@ export const useChatStore = create((set, get) => ({
 
   // Send Message
   sendMessage: async ({ text, image }) => {
-    const { selectedUser, messages } = get();
-    const authUser = get().authUser;
+  const { selectedUser, messages, socket } = get();
+  const authUser = get().authUser;
 
-    // Validate user selection and authentication
-    if (!selectedUser || !selectedUser.id) {
-      toast.error("No user selected for sending the message.");
-      console.error("Error: selectedUser is undefined or has no ID");
-      return;
-    }
+  if (!selectedUser?.id || !authUser?.id) {
+    toast.error("User selection or authentication error.");
+    return;
+  }
 
-    if (!authUser || !authUser.id) {
-      toast.error("No authenticated user available.");
-      console.error("Error: authUser is undefined or has no ID");
-      return;
-    }
+  if (!text?.trim() && !image) {
+    toast.error("Message or image is required.");
+    return;
+  }
 
-    // Validate that message or image is provided
-    if (!text?.trim() && !image) {
-      toast.error("Message or image is required.");
-      console.error("Error: No message or image provided");
-      return;
-    }
+  try {
+    const payload = {
+      senderId: authUser.id,
+      receiverId: selectedUser.id,
+    };
 
-    try {
-      const payload = {
-        senderId: authUser.id,
-        receiverId: selectedUser.id,
-      };
+    if (text?.trim()) payload.message = text.trim();
+    if (image) payload.imageUrl = image;
 
-      // Add message to payload if provided
-      if (text?.trim()) payload.message = text.trim();
-      // Add image URL to payload if provided (ensure image is base64-encoded)
-      if (image) payload.imageUrl = image;
+    // ✅ Send to server via REST API
+    const res = await axiosInstance.post(
+      `/message/send/${selectedUser.id}`,
+      payload
+    );
 
-      console.log("Sending payload:", payload);
+    // ✅ Emit real-time message to receiver via Socket.IO
+    socket?.emit("send-message", {
+      message: res.data.message,
+      from: authUser.id,
+      to: selectedUser.id,
+    });
 
-      // Send the request to the server
-      const res = await axiosInstance.post(
-        `/message/send/${selectedUser.id}`,
-        payload
-      );
+    // ✅ Update local state
+    set({ messages: [...messages, res.data] });
 
-      // Update local state with the new message
-      set({ messages: [...messages, res.data] });
+    return res.data;
+  } catch (error) {
+    const errMsg = error?.response?.data?.message || "Failed to send message";
+    toast.error(errMsg);
+    throw error;
+  }
+},
 
-      return res.data;
-    } catch (error) {
-      // Handle error and display appropriate message
-      const errMsg = error?.response?.data?.message || "Failed to send message";
-      console.error("Send message error:", {
-        error: error?.response?.data || error.message,
-        payload: { text, image },
-      });
-      toast.error(errMsg);
-      throw error; // Re-throw the error for further handling if needed
-    }
-  },
 
   // Set selected user for chat
   setSelectedUser: (selectedUser) => set({ selectedUser }),
