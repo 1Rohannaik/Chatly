@@ -12,10 +12,6 @@ const io = new Server(server, {
   },
 });
 
-
-
-
-
 // Used to store online users
 const userSocketMap = {}; // { userId: socketId }
 
@@ -32,6 +28,18 @@ io.on("connection", (socket) => {
   }
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+  // ✅ Handle sending messages
+  socket.on("send-message", ({ message, to, from }) => {
+    const receiverSocketId = getReceiverSocketId(to);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("receive-message", {
+        message,
+        from,
+      });
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
