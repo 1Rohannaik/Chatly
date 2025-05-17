@@ -10,30 +10,24 @@ const MessageInput = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef(null);
-  const emojiPickerRef = useRef(null);
   const inputRef = useRef(null);
+  const emojiPickerRef = useRef(null);
+  const { sendMessage, currentChatUserId } = useChatStore();
 
-  const { sendMessage, selectedUser } = useChatStore();
-
-  // Close emoji picker on outside click
+  // Close emoji picker when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (e) => {
       if (
         emojiPickerRef.current &&
-        !emojiPickerRef.current.contains(event.target)
+        !emojiPickerRef.current.contains(e.target) &&
+        e.target !== inputRef.current
       ) {
         setShowEmojiPicker(false);
       }
     };
-
-    if (showEmojiPicker) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showEmojiPicker]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -41,11 +35,6 @@ const MessageInput = () => {
 
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
       return;
     }
 
@@ -59,33 +48,35 @@ const MessageInput = () => {
   const removeImage = () => {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    inputRef.current?.focus();
   };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
+    const trimmedText = text.trim();
+    const imageFile = fileInputRef.current?.files?.[0] || null;
 
-    if (!selectedUser?.id) {
-      toast.error("Please select a user to chat with");
-      return;
-    }
-
-    if (!text.trim() && !imagePreview) {
-      toast.error("Message or image required");
+    if (!trimmedText && !imageFile) {
+      toast.error("Please enter a message or select an image.");
       return;
     }
 
     try {
       await sendMessage({
-        text: text.trim(),
-        image: imagePreview || undefined,
+        userId: currentChatUserId,
+        text: trimmedText,
+        image: imageFile,
       });
 
+      // Clear input and preview after send
       setText("");
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+      inputRef.current?.focus();
+      setShowEmojiPicker(false);
     } catch (error) {
-      console.error("Message send error:", error);
       toast.error("Failed to send message");
+      console.error(error);
     }
   };
 
@@ -95,9 +86,10 @@ const MessageInput = () => {
     const end = input.selectionEnd;
 
     const newText = text.slice(0, start) + emoji.native + text.slice(end);
+
     setText(newText);
 
-    // Set cursor position after emoji
+    // Focus input and move cursor after inserted emoji
     setTimeout(() => {
       input.focus();
       input.setSelectionRange(
@@ -129,15 +121,17 @@ const MessageInput = () => {
       )}
 
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2">
+        <div className="flex-1 flex gap-2 relative">
           <input
             type="text"
             ref={inputRef}
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
+            className="w-full input input-bordered rounded-lg input-sm sm:input-md pr-10"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
+            autoComplete="off"
           />
+
           <input
             type="file"
             accept="image/*"
@@ -146,29 +140,37 @@ const MessageInput = () => {
             onChange={handleImageChange}
           />
 
-          <button
-            type="button"
-            className={`btn btn-circle ${
-              imagePreview ? "text-emerald-500" : "text-zinc-400"
-            }`}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Image size={20} />
-          </button>
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+            <button
+              type="button"
+              className={`btn btn-ghost btn-xs ${
+                imagePreview ? "text-emerald-500" : "text-zinc-400"
+              } hover:bg-transparent hover:text-emerald-500`}
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="Attach Image"
+            >
+              <Image size={18} />
+            </button>
 
-          <button
-            type="button"
-            className="btn btn-circle text-zinc-400"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          >
-            <Smile size={20} />
-          </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs text-zinc-400 hover:bg-transparent hover:text-emerald-500"
+              onClick={() => {
+                setShowEmojiPicker(!showEmojiPicker);
+                inputRef.current?.focus();
+              }}
+              aria-label="Add Emoji"
+            >
+              <Smile size={18} />
+            </button>
+          </div>
         </div>
 
         <button
           type="submit"
-          className="btn btn-sm btn-circle bg-primary text-white"
+          className="btn btn-sm btn-circle"
           disabled={!text.trim() && !imagePreview}
+          aria-label="Send Message"
         >
           <Send size={22} />
         </button>
@@ -177,7 +179,7 @@ const MessageInput = () => {
       {showEmojiPicker && (
         <div
           ref={emojiPickerRef}
-          className="absolute bottom-16 left-0 z-50 w-full max-w-xs"
+          className="absolute bottom-16 right-0 z-50 w-full max-w-xs shadow-lg rounded-lg overflow-hidden"
         >
           <Picker
             data={data}
