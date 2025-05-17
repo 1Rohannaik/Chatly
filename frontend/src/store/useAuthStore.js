@@ -5,8 +5,6 @@ import { io } from "socket.io-client";
 
 const BASE_URL = "https://chatly-backend-8viu.onrender.com";
 
-
-
 export const useAuthStore = create((set, get) => ({
   authUser: null,
   isSigningUp: false,
@@ -16,7 +14,6 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
 
-  // ✅ Check Auth
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/users/check");
@@ -30,7 +27,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // ✅ Signup
   signup: async (data) => {
     set({ isSigningUp: true });
     try {
@@ -45,7 +41,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // ✅ Login
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
@@ -60,7 +55,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // ✅ Logout
   logout: async () => {
     try {
       await axiosInstance.post("/users/logout");
@@ -72,7 +66,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // ✅ Update Profile
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
@@ -87,7 +80,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // ✅ Connect Socket
   connectSocket: () => {
     const { authUser, socket } = get();
     if (!authUser?.id || socket?.connected) return;
@@ -96,7 +88,7 @@ export const useAuthStore = create((set, get) => ({
       query: { userId: authUser.id },
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      withCredentials: true, // Ensure cookies are sent along with the request
+      withCredentials: true,
     });
 
     newSocket.on("connect", () => {
@@ -114,7 +106,6 @@ export const useAuthStore = create((set, get) => ({
     set({ socket: newSocket });
   },
 
-  // ✅ Disconnect Socket
   disconnectSocket: () => {
     const socket = get().socket;
     if (socket?.connected) {
