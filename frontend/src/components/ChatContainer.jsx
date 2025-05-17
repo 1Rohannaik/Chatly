@@ -1,36 +1,40 @@
-import { useEffect, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { useAuthStore } from "../store/useAuthStore";
+import { useEffect, useRef } from "react";
+
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
+import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 
 const ChatContainer = () => {
-  const { messages, getMessages, isMessagesLoading, selectedUser } =
-    useChatStore();
+  const {
+    messages,
+    getMessages,
+    isMessagesLoading,
+    selectedUser,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
-  // Fetch messages when a user is selected
   useEffect(() => {
-    if (selectedUser?.id) {
-      getMessages(selectedUser.id);
+    getMessages(selectedUser.id);
+    subscribeToMessages();
+    return () => unsubscribeFromMessages();
+  }, [
+    selectedUser.id,
+    getMessages,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  ]);
+
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [selectedUser?.id, getMessages]);
-
-  // Scroll to latest message when messages update
-  useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  if (!selectedUser) {
-    return (
-      <div className="flex-1 flex flex-col justify-center items-center text-gray-500">
-        <p>Select a user to start chatting</p>
-      </div>
-    );
-  }
 
   if (isMessagesLoading) {
     return (
@@ -53,8 +57,8 @@ const ChatContainer = () => {
             className={`chat ${
               message.senderId === authUser.id ? "chat-end" : "chat-start"
             }`}
+            ref={messageEndRef}
           >
-            {/* Avatar */}
             <div className="chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
@@ -67,36 +71,23 @@ const ChatContainer = () => {
                 />
               </div>
             </div>
-
-            {/* Timestamp */}
             <div className="chat-header mb-1">
-              <time
-                className="text-xs opacity-50 ml-1"
-                title={new Date(message.createdAt).toLocaleString()}
-              >
+              <time className="text-xs opacity-50 ml-1">
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
-
-            {/* Message bubble */}
             <div className="chat-bubble flex flex-col">
               {message.imageUrl && (
                 <img
-                  loading="lazy"
                   src={message.imageUrl}
                   alt="Attachment"
                   className="sm:max-w-[200px] rounded-md mb-2"
-                  onError={(e) => {
-                    e.target.src = "/fallback-image.png";
-                  }}
                 />
               )}
               {message.message && <p>{message.message}</p>}
             </div>
           </div>
         ))}
-        {/* Invisible div to auto-scroll to bottom */}
-        <div ref={messageEndRef} />
       </div>
 
       <MessageInput />
